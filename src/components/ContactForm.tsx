@@ -28,15 +28,42 @@ const ContactForm = () => {
 
     setIsSubmitting(true);
     
-    // Simulate form submission
-    setTimeout(() => {
-      toast({
-        title: "Заявка отправлена!",
-        description: "Мы свяжемся с вами в ближайшее время",
+    try {
+      // Формируем текст сообщения для Telegram
+      const contactsText = `🔥 Новая заявка с сайта CTRL!
+      
+👤 Имя: ${formData.name}
+📞 Телефон: ${formData.phone}
+💬 Сообщение: ${formData.message || 'Не указано'}
+
+⏰ Время: ${new Date().toLocaleString('ru-RU')}`;
+
+      // Отправляем в Telegram
+      const telegramUrl = `https://api.telegram.org/bot8156232977:AAG_Yk2R2nKksdXu35VvDbTaSfztwIYPyrU/sendMessage?chat_id=6738451805&text=${encodeURIComponent(contactsText)}`;
+      
+      const response = await fetch(telegramUrl, {
+        method: 'GET',
       });
-      setFormData({ name: "", phone: "", message: "" });
+
+      if (response.ok) {
+        toast({
+          title: "Заявка отправлена!",
+          description: "Мы свяжемся с вами в ближайшее время",
+        });
+        setFormData({ name: "", phone: "", message: "" });
+      } else {
+        throw new Error('Ошибка отправки');
+      }
+    } catch (error) {
+      console.error('Ошибка отправки в Telegram:', error);
+      toast({
+        title: "Ошибка отправки",
+        description: "Попробуйте еще раз или свяжитесь с нами напрямую",
+        variant: "destructive",
+      });
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
